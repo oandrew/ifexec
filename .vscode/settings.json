@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.s": "gas",
+        "Doxyfile": "makefile",
+        "vmlinux.h": "c"
+    }
+}

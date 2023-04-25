@@ -1,0 +1,20 @@
+[package]
+name = "ifexec"
+version = "0.1.0"
+edition = "2021"
+authors = ["Andrew Onyshchuk <andryk.rv@gmail.com>"]
+
+[dependencies]
+anyhow = "1.0.69"
+libbpf-rs = "0.19.1"
+libc = "0.2.139"
+ctrlc = "3.2.5"
+object = "0.30.3"
+plain = "0.2.3"
+nix = "0.26.2"
+rand = "0.8.5"
+clone3 = "0.2.3"
+clap = { version = "4.1.8", features = ["derive"] }
+
+[build-dependencies]
+libbpf-cargo = "0.13.1"
