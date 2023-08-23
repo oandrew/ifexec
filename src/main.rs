@@ -1,4 +1,4 @@
-use anyhow::{Result};
+use anyhow::Result;
 use clap::Parser;
 use nix::fcntl::OFlag;
 use nix::sys::signal::Signal;
@@ -13,7 +13,7 @@ use std::os::unix::prelude::OwnedFd;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicI32;
 use std::path::Path;
-use std::sync::atomic::{Ordering};
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
 use rand::distributions::DistString;
@@ -25,7 +25,11 @@ use bpf::SockSkelBuilder;
 struct Args {
     /// network interface
     #[arg(short, long)]
-    interface: String,
+    interface: Option<String>,
+
+    /// mark
+    #[arg(short, long, value_parser=parse_int::parse::<u32>)]
+    mark: Option<u32>,
 
 
     #[arg(short, long, default_value_os_t=get_current_cgroup())]
@@ -88,17 +92,23 @@ fn run() -> Result<i32> {
     }
 
     let args = Args::parse();
-    let dev_if = nix::net::if_::if_nametoindex(args.interface.as_str())?;
 
     let mut skel = {
         let mut open_skel = SockSkelBuilder::default().open()?;
-        open_skel.rodata().dev_if = dev_if;
+        if let Some(interface) = args.interface {
+            open_skel.rodata().dev_if = nix::net::if_::if_nametoindex(interface.as_str())?;
+        }
+
+        if let Some(mark) = args.mark {
+            open_skel.rodata().mark = mark;
+        }
+
         open_skel.load()?
     };
 
     let cgroup_name = {
         let rand = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 8);
-        format!("{}_{}", args.interface, rand)
+        format!("{}", rand)
     };
     let cgroup = TempCgroup::create(&args.cgroup_base, &cgroup_name)?;
     let _sock_create = skel.progs_mut().sock_create().attach_cgroup(cgroup.as_fd().as_raw_fd())?;

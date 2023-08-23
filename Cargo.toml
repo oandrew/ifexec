@@ -15,6 +15,7 @@ nix = "0.26.2"
 rand = "0.8.5"
 clone3 = "0.2.3"
 clap = { version = "4.1.8", features = ["derive"] }
+parse_int = "0.6.0"
 
 [build-dependencies]
 libbpf-cargo = "0.13.1"
